@@ -1,5 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+group = 'com.rbase'
+version = '0.1'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -11,4 +15,20 @@ repositories {
 dependencies {
   compile group: 'commons-io', name: 'commons-io', version: commonsIoVersion
   testCompile group: 'junit', name: 'junit', version: junitVersion
+}
+
+task sourceJar(type: Jar) {
+  from sourceSets.main.allJava
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+
+      artifact sourceJar {
+        classifier 'sources'
+      }
+    }
+  }
 }
