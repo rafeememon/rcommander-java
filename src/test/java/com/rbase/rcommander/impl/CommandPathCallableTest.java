@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -58,7 +57,6 @@ public class CommandPathCallableTest {
     }
 
     @Test
-    @Ignore("exit code not set properly")
     public void testCallInvalidConnectionString() throws Exception {
         expectedException.expect(RCommanderException.class);
         try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {

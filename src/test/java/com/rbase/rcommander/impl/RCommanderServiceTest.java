@@ -9,7 +9,6 @@ import java.util.concurrent.TimeoutException;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -108,7 +107,6 @@ public class RCommanderServiceTest {
     }
 
     @Test
-    @Ignore("exit code not set properly")
     public void testSubmitInvalidConnectionString() throws InterruptedException, ExecutionException {
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(RCommanderException.class));
@@ -145,7 +143,6 @@ public class RCommanderServiceTest {
     }
 
     @Test
-    @Ignore("exit code not set properly")
     public void testSubmitPathInvalidConnectionString() throws InterruptedException, ExecutionException {
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(RCommanderException.class));
