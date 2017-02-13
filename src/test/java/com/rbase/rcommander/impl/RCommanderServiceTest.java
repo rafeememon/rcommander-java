@@ -63,8 +63,9 @@ public class RCommanderServiceTest {
 
     @Test
     public void testSubmitInterrupted() throws InterruptedException, ExecutionException {
+        expectedException.expect(InterruptedException.class);
         Thread.currentThread().interrupt();
-        rCommanderService.submit(RCommanderTests.COMMAND, RCommanderTests.TIMEOUT_SHORT);
+        rCommanderService.submit(RCommanderTests.COMMAND, RCommanderTests.TIMEOUT_SHORT).get();
     }
 
     @Test
