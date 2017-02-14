@@ -1,9 +1,13 @@
+plugins {
+  id 'com.palantir.git-version' version '0.5.3'
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 group = 'com.rbase'
-version = '0.1'
+version = gitVersion()
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
