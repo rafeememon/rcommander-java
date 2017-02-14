@@ -5,6 +5,10 @@ import java.nio.file.Paths;
 
 public class RCommanderPaths {
 
+    private RCommanderPaths() {
+        // utility class
+    }
+
     private static final String RBTI_DIRECTORY = "C:\\RBTI";
     private static final String RCOMMANDER_PREFIX = "RCommander";
 
