@@ -12,6 +12,13 @@ public class RCommanderPaths {
     private static final String RBTI_DIRECTORY = "C:\\RBTI";
     private static final String RCOMMANDER_PREFIX = "RCommander";
 
+    /**
+     * Get the default path of R:Commander for the specified version.
+     *
+     * @param version
+     *            the version
+     * @return the path to R:Commander
+     */
     public static String getPathForVersion(String version) {
         String fullName = RCOMMANDER_PREFIX + version;
         String path = Paths.get(RBTI_DIRECTORY, fullName, fullName + ".exe").toString();

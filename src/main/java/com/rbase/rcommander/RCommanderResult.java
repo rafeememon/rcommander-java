@@ -1,23 +1,49 @@
 package com.rbase.rcommander;
 
+/**
+ * A result of an R:Commander task.
+ */
 public class RCommanderResult {
 
     private final String output;
     private final String error;
 
+    /**
+     * Construct a new R:Commander result.
+     *
+     * @param output
+     *            the process output
+     * @param error
+     *            the process error
+     */
     public RCommanderResult(String output, String error) {
         this.output = output;
         this.error = error;
     }
 
+    /**
+     * Get the output.
+     *
+     * @return the output
+     */
     public String getOutput() {
         return output;
     }
 
+    /**
+     * Get the error.
+     *
+     * @return the error
+     */
     public String getError() {
         return error;
     }
 
+    /**
+     * Returns <code>true</code> if there is an error.
+     *
+     * @return true if there is an error
+     */
     public boolean hasError() {
         return !error.isEmpty();
     }
