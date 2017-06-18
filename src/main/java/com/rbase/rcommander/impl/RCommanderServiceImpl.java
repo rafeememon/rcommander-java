@@ -51,4 +51,9 @@ public class RCommanderServiceImpl implements RCommanderService {
         return RCommanderFutures.submitCancelable(callable, executorService);
     }
 
+    @Override
+    public void shutdown() {
+        executorService.shutdown();
+    }
+
 }

@@ -49,4 +49,9 @@ public interface RCommanderService {
      */
     CompletableFuture<RCommanderResult> submitPath(String commandPath, long timeoutSeconds);
 
+    /**
+     * Shutdown the service.
+     */
+    void shutdown();
+
 }
