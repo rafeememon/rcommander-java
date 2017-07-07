@@ -1,6 +1,7 @@
 package com.rbase.rcommander.impl;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -153,6 +154,20 @@ public class RCommanderServiceTest {
         try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
             rCommanderService.submitPath(commandFile.getFile().getAbsolutePath()).get();
         }
+    }
+
+    @Test
+    public void testSubmitLargeOutput() throws InterruptedException, ExecutionException {
+        String command = repeat("PAUSE 2 USING " + repeat("R", 100) + "\n", 100);
+        rCommanderService = new RCommanderServiceImpl(
+                executorService,
+                RCommanderTests.RCOMMANDER_PATH,
+                RCommanderTests.CONNECTION_STRING);
+        rCommanderService.submit(command).get();
+    }
+
+    private static String repeat(String string, int copies) {
+        return String.join("", Collections.nCopies(copies, string));
     }
 
 }
