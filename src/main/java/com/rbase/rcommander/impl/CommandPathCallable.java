@@ -1,5 +1,6 @@
 package com.rbase.rcommander.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -7,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.Charsets;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 
 import com.rbase.rcommander.RCommanderException;
 import com.rbase.rcommander.RCommanderResult;
@@ -33,11 +34,19 @@ public class CommandPathCallable implements Callable<RCommanderResult> {
     @Override
     public RCommanderResult call() throws IOException, InterruptedException, TimeoutException {
         Process process = null;
-        try {
-            process = new ProcessBuilder(rCommanderPath, commandPath, "DB " + connectionString).start();
+        try (TemporaryFile outFile = TemporaryFile.create("rcommander-out-", ".log");
+                TemporaryFile errFile = TemporaryFile.create("rcommander-err-", ".log")) {
+            process = new ProcessBuilder(rCommanderPath, commandPath, "DB " + connectionString)
+                    .redirectOutput(outFile.getFile())
+                    .redirectError(errFile.getFile())
+                    .start();
             waitFor(process);
-            checkExitValue(process);
-            return getResult(process);
+            RCommanderResult result = getResult(outFile.getFile(), errFile.getFile());
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new RCommanderException(exitValue, result);
+            }
+            return result;
         } finally {
             if (process != null) {
                 process.destroy();
@@ -56,17 +65,10 @@ public class CommandPathCallable implements Callable<RCommanderResult> {
         }
     }
 
-    private static void checkExitValue(Process process) throws IOException {
-        int exitValue = process.exitValue();
-        if (exitValue != 0) {
-            throw new RCommanderException(exitValue, getResult(process));
-        }
-    }
-
-    private static RCommanderResult getResult(Process process) throws IOException {
+    private static RCommanderResult getResult(File outFile, File errFile) throws IOException {
         return new RCommanderResult(
-                IOUtils.toString(process.getInputStream(), Charsets.UTF_8).trim(),
-                IOUtils.toString(process.getErrorStream(), Charsets.UTF_8).trim());
+                FileUtils.readFileToString(outFile, Charsets.UTF_8).trim(),
+                FileUtils.readFileToString(errFile, Charsets.UTF_8).trim());
     }
 
 }
