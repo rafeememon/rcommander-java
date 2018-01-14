@@ -1,5 +1,5 @@
 plugins {
-  id 'java'
+  id 'java-library'
   id 'eclipse'
   id 'maven-publish'
   id 'com.palantir.git-version' version '0.10.1'
@@ -18,8 +18,8 @@ repositories {
 }
 
 dependencies {
-  compile group: 'commons-io', name: 'commons-io', version: commonsIoVersion
-  testCompile group: 'junit', name: 'junit', version: junitVersion
+  implementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
+  testImplementation group: 'junit', name: 'junit', version: junitVersion
 }
 
 task sourceJar(type: Jar) {
