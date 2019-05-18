@@ -3,6 +3,7 @@ plugins {
   id 'eclipse'
   id 'maven-publish'
   id 'com.palantir.git-version' version '0.11.0'
+  id 'org.inferred.processors' version '2.2.0'
 }
 
 apply from: 'gradle/s3.gradle'
@@ -18,6 +19,8 @@ repositories {
 }
 
 dependencies {
+  annotationProcessor group: 'org.immutables', name: 'value', version: immutablesVersion
+  compileOnly group: 'org.immutables', name: 'value', version: immutablesVersion
   implementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
   testImplementation group: 'junit', name: 'junit', version: junitVersion
 }

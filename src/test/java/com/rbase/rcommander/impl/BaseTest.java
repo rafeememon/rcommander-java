@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
+import com.rbase.rcommander.ImmutableRCommanderResult;
 import com.rbase.rcommander.RCommanderException;
 import com.rbase.rcommander.RCommanderPaths;
 import com.rbase.rcommander.RCommanderResult;
@@ -17,7 +18,10 @@ public class BaseTest {
     protected static final String CONNECTION_STRING = "DSN=RRBYW18";
     protected static final String TEST_COMMAND = "SELECT Company INTO vCompany FROM Customer WHERE CustID = 127\n"
             + "PAUSE 2 USING .vCompany\n";
-    protected static final RCommanderResult TEST_EXPECTED_RESULT = new RCommanderResult("[RAM Data Systems, Inc.]", "");
+    protected static final RCommanderResult TEST_EXPECTED_RESULT = ImmutableRCommanderResult.builder()
+            .output("[RAM Data Systems, Inc.]")
+            .error("")
+            .build();
     protected static final long TEST_TIMEOUT = 10L;
     protected static final long TEST_TIMEOUT_SHORT = 0L;
 
