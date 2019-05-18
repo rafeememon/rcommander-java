@@ -1,87 +1,34 @@
 package com.rbase.rcommander;
 
+import org.immutables.value.Value;
+
 /**
  * A result of an R:Commander task.
  */
-public class RCommanderResult {
-
-    private final String output;
-    private final String error;
+@Value.Immutable
+public interface RCommanderResult {
 
     /**
-     * Construct a new R:Commander result.
+     * The standard output of the task.
      *
-     * @param output
-     *            the process output
-     * @param error
-     *            the process error
+     * @return the standard output
      */
-    public RCommanderResult(String output, String error) {
-        this.output = output;
-        this.error = error;
-    }
+    String getOutput();
 
     /**
-     * Get the output.
+     * The error output of the task.
      *
-     * @return the output
+     * @return the error output
      */
-    public String getOutput() {
-        return output;
-    }
-
-    /**
-     * Get the error.
-     *
-     * @return the error
-     */
-    public String getError() {
-        return error;
-    }
+    String getError();
 
     /**
      * Returns <code>true</code> if there is an error.
      *
      * @return true if there is an error
      */
-    public boolean hasError() {
-        return !error.isEmpty();
-    }
-
-    @Override
-    public String toString() {
-        return "RCommanderResult [output=" + output + ", error=" + error + "]";
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((error == null) ? 0 : error.hashCode());
-        result = prime * result + ((output == null) ? 0 : output.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        RCommanderResult other = (RCommanderResult) obj;
-        if (error == null) {
-            if (other.error != null)
-                return false;
-        } else if (!error.equals(other.error))
-            return false;
-        if (output == null) {
-            if (other.output != null)
-                return false;
-        } else if (!output.equals(other.output))
-            return false;
-        return true;
+    default boolean hasError() {
+        return !getError().isEmpty();
     }
 
 }

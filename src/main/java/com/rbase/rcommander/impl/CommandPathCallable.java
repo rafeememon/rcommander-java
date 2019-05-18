@@ -10,6 +10,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 
+import com.rbase.rcommander.ImmutableRCommanderResult;
 import com.rbase.rcommander.RCommanderException;
 import com.rbase.rcommander.RCommanderResult;
 
@@ -66,9 +67,10 @@ public class CommandPathCallable implements Callable<RCommanderResult> {
     }
 
     private static RCommanderResult getResult(File outFile, File errFile) throws IOException {
-        return new RCommanderResult(
-                FileUtils.readFileToString(outFile, Charsets.UTF_8).trim(),
-                FileUtils.readFileToString(errFile, Charsets.UTF_8).trim());
+        return ImmutableRCommanderResult.builder()
+                .output(FileUtils.readFileToString(outFile, Charsets.UTF_8).trim())
+                .error(FileUtils.readFileToString(errFile, Charsets.UTF_8).trim())
+                .build();
     }
 
 }
