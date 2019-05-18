@@ -9,30 +9,21 @@ import java.util.concurrent.TimeoutException;
 
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import com.rbase.rcommander.RCommanderException;
 import com.rbase.rcommander.RCommanderResult;
 import com.rbase.rcommander.RCommanderService;
 
-public class RCommanderServiceTest {
+public class RCommanderServiceTest extends BaseTest {
 
     private ExecutorService executorService;
-    private RCommanderService rCommanderService;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setup() {
         executorService = Executors.newSingleThreadExecutor();
-        rCommanderService = new RCommanderServiceImpl(
-                executorService,
-                RCommanderTests.RCOMMANDER_PATH,
-                RCommanderTests.CONNECTION_STRING);
     }
 
     @After
@@ -43,127 +34,107 @@ public class RCommanderServiceTest {
 
     @Test
     public void testSubmit() throws InterruptedException, ExecutionException {
-        RCommanderResult result = rCommanderService.submit(RCommanderTests.COMMAND).get();
-        RCommanderTests.assertCorrectResult(result);
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
+        RCommanderResult result = service.submit(TEST_COMMAND).get();
+        Assert.assertEquals(TEST_EXPECTED_RESULT, result);
     }
 
     @Test
     public void testSubmitWithTimeout() throws InterruptedException, ExecutionException {
-        RCommanderResult result = rCommanderService.submit(RCommanderTests.COMMAND, RCommanderTests.TIMEOUT)
-                .get();
-        RCommanderTests.assertCorrectResult(result);
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
+        RCommanderResult result = service.submit(TEST_COMMAND, TEST_TIMEOUT).get();
+        Assert.assertEquals(TEST_EXPECTED_RESULT, result);
     }
 
     @Test
     public void testSubmitWithTimeoutTimedOut() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(TimeoutException.class));
-        rCommanderService.submit(RCommanderTests.COMMAND, RCommanderTests.TIMEOUT_SHORT).get();
+        service.submit(TEST_COMMAND, TEST_TIMEOUT_SHORT).get();
     }
 
     @Test
     public void testSubmitInterrupted() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
         expectedException.expect(InterruptedException.class);
         Thread.currentThread().interrupt();
-        rCommanderService.submit(RCommanderTests.COMMAND, RCommanderTests.TIMEOUT_SHORT).get();
+        service.submit(TEST_COMMAND).get();
     }
 
     @Test
     public void testSubmitPath() throws InterruptedException, ExecutionException {
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            RCommanderResult result = rCommanderService.submitPath(commandFile.getFile().getAbsolutePath()).get();
-            RCommanderTests.assertCorrectResult(result);
-        }
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
+        RCommanderResult result = service.submitPath(commandFile(TEST_COMMAND)).get();
+        Assert.assertEquals(TEST_EXPECTED_RESULT, result);
     }
 
     @Test
     public void testSubmitPathWithTimeout() throws InterruptedException, ExecutionException {
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            RCommanderResult result = rCommanderService
-                    .submitPath(commandFile.getFile().getAbsolutePath(), RCommanderTests.TIMEOUT).get();
-            RCommanderTests.assertCorrectResult(result);
-        }
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
+        RCommanderResult result = service.submitPath(commandFile(TEST_COMMAND), TEST_TIMEOUT).get();
+        Assert.assertEquals(TEST_EXPECTED_RESULT, result);
     }
 
     @Test
     public void testSubmitPathWithTimeoutTimedOut() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(TimeoutException.class));
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            rCommanderService.submitPath(commandFile.getFile().getAbsolutePath(), RCommanderTests.TIMEOUT_SHORT)
-                    .get();
-        }
+        service.submitPath(commandFile(TEST_COMMAND), TEST_TIMEOUT_SHORT).get();
     }
 
     @Test
     public void testSubmitInvalidRCommanderPath() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(INVALID_RCOMMANDER_PATH, CONNECTION_STRING);
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(IOException.class));
         expectedException.expectMessage("Cannot run program");
-        rCommanderService = new RCommanderServiceImpl(
-                executorService,
-                RCommanderTests.RCOMMANDER_PATH_INVALID,
-                RCommanderTests.CONNECTION_STRING);
-        rCommanderService.submit(RCommanderTests.COMMAND).get();
+        service.submit(TEST_COMMAND).get();
     }
 
     @Test
     public void testSubmitInvalidConnectionString() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, INVALID_CONNECTION_STRING);
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(RCommanderException.class));
-        rCommanderService = new RCommanderServiceImpl(
-                executorService,
-                RCommanderTests.RCOMMANDER_PATH,
-                RCommanderTests.CONNECTION_STRING_INVALID);
-        rCommanderService.submit(RCommanderTests.COMMAND).get();
+        service.submit(TEST_COMMAND).get();
     }
 
     @Test
     public void testSubmitPathInvalidRCommanderPath() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(INVALID_RCOMMANDER_PATH, CONNECTION_STRING);
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(IOException.class));
         expectedException.expectMessage("Cannot run program");
-        rCommanderService = new RCommanderServiceImpl(
-                executorService,
-                RCommanderTests.RCOMMANDER_PATH_INVALID,
-                RCommanderTests.CONNECTION_STRING);
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            rCommanderService.submitPath(commandFile.getFile().getAbsolutePath()).get();
-        }
+        service.submitPath(commandFile(TEST_COMMAND)).get();
     }
 
     @Test
     public void testSubmitPathInvalidCommandPath() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(RCommanderException.class));
-        rCommanderService = new RCommanderServiceImpl(
-                executorService,
-                RCommanderTests.RCOMMANDER_PATH,
-                RCommanderTests.CONNECTION_STRING);
-        rCommanderService.submitPath(RCommanderTests.COMMAND_PATH_INVALID).get();
+        service.submitPath(INVALID_COMMAND_PATH).get();
     }
 
     @Test
     public void testSubmitPathInvalidConnectionString() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, INVALID_CONNECTION_STRING);
         expectedException.expect(ExecutionException.class);
         expectedException.expectCause(IsInstanceOf.instanceOf(RCommanderException.class));
-        rCommanderService = new RCommanderServiceImpl(
-                executorService,
-                RCommanderTests.RCOMMANDER_PATH,
-                RCommanderTests.CONNECTION_STRING_INVALID);
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            rCommanderService.submitPath(commandFile.getFile().getAbsolutePath()).get();
-        }
+        service.submitPath(commandFile(TEST_COMMAND)).get();
     }
 
     @Test
     public void testSubmitLargeOutput() throws InterruptedException, ExecutionException {
+        RCommanderService service = rCommanderService(RCOMMANDER_PATH, CONNECTION_STRING);
         String command = repeat("PAUSE 2 USING " + repeat("R", 100) + "\n", 100);
-        rCommanderService = new RCommanderServiceImpl(
-                executorService,
-                RCommanderTests.RCOMMANDER_PATH,
-                RCommanderTests.CONNECTION_STRING);
-        rCommanderService.submit(command).get();
+        service.submit(command).get();
+    }
+
+    private RCommanderService rCommanderService(String rCommanderPath, String connectionString) {
+        return new RCommanderServiceImpl(executorService, rCommanderPath, connectionString);
     }
 
     private static String repeat(String string, int copies) {

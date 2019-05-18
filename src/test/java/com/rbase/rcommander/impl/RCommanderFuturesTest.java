@@ -10,16 +10,11 @@ import org.hamcrest.core.IsEqual;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-public class RCommanderFuturesTest {
+public class RCommanderFuturesTest extends BaseTest {
 
     private ExecutorService executorService;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setup() {

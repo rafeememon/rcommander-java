@@ -5,17 +5,12 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
-import org.junit.Rule;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import com.rbase.rcommander.RCommanderException;
 import com.rbase.rcommander.RCommanderResult;
 
-public class CommandPathCallableTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+public class CommandPathCallableTest extends BaseTest {
 
     @After
     public void destroy() {
@@ -24,71 +19,64 @@ public class CommandPathCallableTest {
 
     @Test
     public void testCall() throws Exception {
-        testCallInternal(Optional.empty());
+        RCommanderResult result =
+                commandPathCallable(CONNECTION_STRING, commandFile(TEST_COMMAND), RCOMMANDER_PATH).call();
+        Assert.assertEquals(TEST_EXPECTED_RESULT, result);
     }
 
     @Test
     public void testCallWithTimeout() throws Exception {
-        testCallInternal(Optional.of(RCommanderTests.TIMEOUT));
+        RCommanderResult result =
+                commandPathCallable(CONNECTION_STRING, commandFile(TEST_COMMAND), RCOMMANDER_PATH, TEST_TIMEOUT).call();
+        Assert.assertEquals(TEST_EXPECTED_RESULT, result);
     }
 
     @Test
     public void testCallWithTimeoutTimedOut() throws Exception {
         expectedException.expect(TimeoutException.class);
-        testCallInternal(Optional.of(RCommanderTests.TIMEOUT_SHORT));
+        commandPathCallable(CONNECTION_STRING, commandFile(TEST_COMMAND), RCOMMANDER_PATH, TEST_TIMEOUT_SHORT).call();
     }
 
     @Test
     public void testCallInterrupted() throws Exception {
         expectedException.expect(InterruptedException.class);
         Thread.currentThread().interrupt();
-        testCallInternal(Optional.empty());
-    }
-
-    private static void testCallInternal(Optional<Long> timeoutSeconds) throws Exception {
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            RCommanderResult result = new CommandPathCallable(
-                    RCommanderTests.CONNECTION_STRING,
-                    commandFile.getFile().getAbsolutePath(),
-                    RCommanderTests.RCOMMANDER_PATH,
-                    timeoutSeconds).call();
-            RCommanderTests.assertCorrectResult(result);
-        }
+        commandPathCallable(CONNECTION_STRING, commandFile(TEST_COMMAND), RCOMMANDER_PATH).call();
     }
 
     @Test
     public void testCallInvalidConnectionString() throws Exception {
-        expectedException.expect(RCommanderException.class);
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            new CommandPathCallable(
-                    RCommanderTests.CONNECTION_STRING_INVALID,
-                    commandFile.getFile().getAbsolutePath(),
-                    RCommanderTests.RCOMMANDER_PATH,
-                    Optional.empty()).call();
-        }
+        expectRCommanderException("No database connected");
+        commandPathCallable(INVALID_CONNECTION_STRING, commandFile(TEST_COMMAND), RCOMMANDER_PATH).call();
     }
 
     @Test
     public void testCallInvalidCommandPath() throws Exception {
-        expectedException.expect(RCommanderException.class);
-        new CommandPathCallable(
-                RCommanderTests.CONNECTION_STRING,
-                RCommanderTests.COMMAND_PATH_INVALID,
-                RCommanderTests.RCOMMANDER_PATH,
-                Optional.empty()).call();
+        // FIXME: "-ERROR- File foo.rmd does not exists" in stdout
+        expectRCommanderException("");
+        commandPathCallable(INVALID_CONNECTION_STRING, INVALID_COMMAND_PATH, RCOMMANDER_PATH).call();
     }
 
     @Test
     public void testCallInvalidRCommanderPath() throws Exception {
         expectedException.expect(IOException.class);
         expectedException.expectMessage("Cannot run program");
-        try (TemporaryFile commandFile = RCommanderTests.getTestCommandFile()) {
-            new CommandPathCallable(
-                    RCommanderTests.CONNECTION_STRING,
-                    commandFile.getFile().getAbsolutePath(),
-                    RCommanderTests.RCOMMANDER_PATH_INVALID,
-                    Optional.empty()).call();
-        }
+        commandPathCallable(CONNECTION_STRING, commandFile(TEST_COMMAND), INVALID_RCOMMANDER_PATH).call();
+    }
+
+    private static CommandPathCallable commandPathCallable(
+            String connectionString,
+            String commandPath,
+            String rCommanderPath) {
+        return new CommandPathCallable(connectionString, commandPath, rCommanderPath, Optional.empty());
+    }
+
+    private static CommandPathCallable commandPathCallable(
+            String connectionString,
+            String commandPath,
+            String rCommanderPath,
+            long timeout) {
+        return new CommandPathCallable(connectionString, commandPath, rCommanderPath, Optional.of(timeout));
     }
 
 }
